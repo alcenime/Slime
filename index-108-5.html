@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Slime Runes – Create Your Adventurer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #d4a843;
+    --gold-light: #f5d780;
+    --gold-dark: #8a6420;
+    --navy: #0b0f2a;
+    --navy2: #111535;
+    --navy3: #181d42;
+    --panel: rgba(15,20,55,0.92);
+    --border: rgba(212,168,67,0.35);
+    --accent-green: #4cde7a;
+    --accent-purple: #a855f7;
+    --accent-red: #ef4444;
+    --accent-blue: #38bdf8;
+    --accent-orange: #fb923c;
+    --accent-white: #fef9ee;
+    --shadow-gold: 0 0 18px rgba(212,168,67,0.45);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--navy);
+    color: #e8e0cc;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO BG ── */
+  .hero-bg {
+    position: relative;
+    width: 100%;
+    min-height: 220px;
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 70%, var(--navy) 100%),
+      url('https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/backgroundchar.jpg') center center / cover no-repeat;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 28px;
+  }
+  .hero-bg::before {
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle 300px at 15% 60%, rgba(100,120,255,0.08) 0%, transparent 70%),
+      radial-gradient(circle 200px at 85% 50%, rgba(80,200,255,0.05) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  /* floating islands effect */
+  .hero-bg::after {
+    content:'';
+    position:absolute;
+    bottom:0; left:0; right:0; height:60px;
+    background: linear-gradient(to bottom, transparent, var(--navy));
+    pointer-events:none;
+  }
+
+  /* ── LOGO ── */
+  .logo-wrap {
+    position: relative;
+    z-index:2;
+    text-align: center;
+  }
+  .logo-gem {
+    width: 48px; height: 48px;
+    margin-bottom: 4px;
+  }
+  .logo-gem svg { width: 100%; height: 100%; }
+  .logo-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2rem, 7vw, 3.4rem);
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(100,180,255,0.6), 0 2px 8px rgba(0,0,0,0.8);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .logo-sub {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.65rem, 2.5vw, 0.85rem);
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .logo-tagline {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  /* portal decoration */
+  .portal {
+    position: absolute;
+    right: -10px; top: -10px;
+    width: 120px; height: 140px;
+    background: radial-gradient(circle, rgba(80,200,255,0.3) 0%, rgba(40,80,200,0.15) 50%, transparent 70%);
+    border-radius: 50% 50% 60% 60%;
+    box-shadow: 0 0 40px rgba(80,200,255,0.25);
+    opacity:0.7;
+  }
+  .castle {
+    position:absolute;
+    left:-10px; top:10px;
+    width:100px; height:120px;
+    background: linear-gradient(to bottom, rgba(180,180,220,0.07) 0%, transparent 100%);
+    opacity:0.5;
+    border-radius: 4px 4px 0 0;
+  }
+
+  /* ── MAIN CONTAINER ── */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 28px 0 18px;
+  }
+  .section-header .line {
+    flex:1; height:1px;
+    background: linear-gradient(to right, transparent, var(--gold-dark), transparent);
+  }
+  .section-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.85rem, 3vw, 1.05rem);
+    color: var(--gold-light);
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+  }
+  .section-header .diamond {
+    color: var(--gold);
+    font-size: 0.7rem;
+  }
+
+  /* ── CHARACTER GRID ── */
+  .char-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  @media(max-width:600px){ .char-grid { grid-template-columns: repeat(2,1fr); gap:8px; } }
+
+  .char-card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid rgba(212,168,67,0.2);
+    background: var(--navy3);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    aspect-ratio: 3/4;
+  }
+  .char-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    border-color: rgba(212,168,67,0.6);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5), var(--shadow-gold);
+  }
+  .char-card.selected {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 20px rgba(76,222,122,0.5), 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .char-card img {
+    width: 100%; height: 75%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+  .char-card .char-info {
+    padding: 6px 8px 8px;
+    background: linear-gradient(to bottom, rgba(10,14,40,0.9), rgba(10,14,40,1));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .char-card .slime-icon { font-size: 1.1rem; line-height:1; }
+  .char-card .char-name {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.55rem, 1.8vw, 0.72rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+  .char-card .char-symbol { font-size: 0.75rem; opacity:0.8; }
+
+  /* class accent colors */
+  .char-card[data-class="ranger"] .char-name { color: var(--accent-green); }
+  .char-card[data-class="pirate"] .char-name { color: var(--accent-red); }
+  .char-card[data-class="mage"] .char-name { color: var(--accent-purple); }
+  .char-card[data-class="explorer"] .char-name { color: var(--gold-light); }
+  .char-card[data-class="priestess"] .char-name { color: var(--accent-blue); }
+  .char-card[data-class="assassin"] .char-name { color: #4dd8e8; }
+  .char-card[data-class="knight"] .char-name { color: var(--accent-orange); }
+  .char-card[data-class="scholar"] .char-name { color: #fef08a; }
+
+  .char-card[data-class="pirate"] { border-color: rgba(239,68,68,0.3); }
+  .char-card[data-class="mage"] { border-color: rgba(168,85,247,0.3); }
+  .char-card[data-class="assassin"] { border-color: rgba(77,216,232,0.3); }
+  .char-card[data-class="knight"] { border-color: rgba(251,146,60,0.3); }
+
+  /* selected checkmark */
+  .check-badge {
+    display:none;
+    position:absolute; top:8px; right:8px;
+    width:24px; height:24px;
+    background: var(--accent-green);
+    border-radius:50%;
+    align-items:center; justify-content:center;
+    font-size:13px; color:#000; font-weight:900;
+    box-shadow:0 0 10px rgba(76,222,122,0.7);
+    z-index:5;
+  }
+  .char-card.selected .check-badge { display:flex; }
+
+  /* ── STEPS PANEL ── */
+  .steps-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 0;
+    margin-top: 20px;
+    overflow: hidden;
+  }
+  @media(max-width:600px){ .steps-panel { grid-template-columns: 1fr 1fr; } }
+
+  .step {
+    padding: 16px 12px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .step:last-child { border-right: none; }
+
+  .step-num {
+    width: 26px; height: 26px;
+    border: 2px solid var(--gold-dark);
+    border-radius: 50%;
+    display: flex; align-items:center; justify-content:center;
+    font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold);
+  }
+  .step-title {
+    font-family:'Cinzel',serif;
+    font-size:0.7rem; font-weight:700;
+    color:var(--gold-light);
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+  }
+  .step-desc {
+    font-size:0.68rem;
+    color:rgba(255,255,255,0.5);
+    line-height:1.4;
+  }
+
+  /* wallet btn */
+  .btn-wallet {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    border: none; border-radius:8px;
+    color:#fff; font-family:'Cinzel',serif;
+    font-size:0.7rem; font-weight:700;
+    letter-spacing:0.08em;
+    padding:9px 14px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    transition: opacity 0.2s, transform 0.15s;
+    white-space:nowrap;
+  }
+  .btn-wallet:hover { opacity:0.85; transform:translateY(-1px); }
+
+  /* name input */
+  .name-input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(212,168,67,0.3);
+    border-radius:7px;
+    color:#fff; font-size:0.78rem;
+    padding:8px 10px;
+    width:100%;
+    outline:none;
+    transition: border-color 0.2s;
+  }
+  .name-input::placeholder { color:rgba(255,255,255,0.3); }
+  .name-input:focus { border-color: var(--gold); }
+  .char-count { font-size:0.62rem; color:rgba(255,255,255,0.3); text-align:right; }
+
+  /* selected char display */
+  .sel-char {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius:8px;
+    padding:6px 10px;
+    display:flex; align-items:center; gap:8px;
+    font-family:'Cinzel',serif;
+    font-size:0.72rem;
+    color:var(--gold-light);
+  }
+  .sel-char img { width:32px; height:32px; border-radius:5px; object-fit:cover; }
+
+  /* start button */
+  .btn-start {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius:8px;
+    color:rgba(255,255,255,0.35);
+    font-family:'Cinzel',serif; font-size:0.7rem; font-weight:700;
+    letter-spacing:0.08em;
+    padding:9px 14px;
+    cursor:not-allowed;
+    display:flex; align-items:center; gap:6px;
+    transition: all 0.3s;
+    white-space:nowrap;
+  }
+  .btn-start.active {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    border-color: var(--accent-green);
+    color:#fff;
+    cursor:pointer;
+    box-shadow: 0 0 16px rgba(76,222,122,0.3);
+  }
+  .btn-start.active:hover { transform:translateY(-1px); opacity:0.9; }
+
+  /* ── HOW TO PLAY ── */
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(6,1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+  @media(max-width:600px){ .how-grid { grid-template-columns: repeat(3,1fr); } }
+
+  .how-item {
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    text-align:center;
+  }
+  .how-icon { font-size:1.5rem; }
+  .how-title {
+    font-family:'Cinzel',serif;
+    font-size:0.6rem; font-weight:700;
+    color:var(--gold-light);
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+  }
+  .how-desc { font-size:0.6rem; color:rgba(255,255,255,0.45); line-height:1.4; }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    margin-top:28px; padding-top:16px;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:10px;
+  }
+  .footer-copy { font-size:0.65rem; color:rgba(255,255,255,0.3); }
+  .footer-right { font-size:0.65rem; color:rgba(255,255,255,0.3); font-family:'Cinzel',serif; letter-spacing:0.08em; }
+  .social-links { display:flex; gap:12px; align-items:center; }
+  .social-btn {
+    width:36px; height:36px; border-radius:50%;
+    border:1px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.05);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.2s; font-size:0.9rem;
+    text-decoration:none; color:#fff;
+  }
+  .social-btn:hover { border-color:var(--gold); background:rgba(212,168,67,0.1); }
+
+  /* divider ornament */
+  .ornament { color:var(--gold); font-size:0.7rem; }
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero-bg">
+  <div class="castle"></div>
+  <div class="portal"></div>
+  <div class="logo-wrap">
+    <div class="logo-gem">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="24,2 44,18 24,46 4,18" fill="none" stroke="#7ec8f7" stroke-width="1.5"/>
+        <polygon points="24,2 44,18 24,26 4,18" fill="rgba(100,200,255,0.15)" stroke="#7ec8f7" stroke-width="1"/>
+        <polygon points="24,26 44,18 24,46" fill="rgba(60,140,255,0.1)" stroke="#5aabf0" stroke-width="0.8"/>
+        <polygon points="24,26 4,18 24,46" fill="rgba(40,100,200,0.12)" stroke="#4a90e0" stroke-width="0.8"/>
+        <circle cx="24" cy="18" r="3" fill="#a8d8ff" opacity="0.8"/>
+      </svg>
+    </div>
+    <div class="logo-title">Slime<br>Runes</div>
+    <div class="logo-sub">✦ Create Your Adventurer ✦</div>
+    <div class="logo-tagline">Choose your character and begin your journey.</div>
+  </div>
+  <div style="height:32px"></div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="container">
+
+  <!-- Choose Adventurer Header -->
+  <div class="section-header">
+    <div class="line"></div>
+    <span class="diamond">✦</span>
+    <h2>CHOOSE YOUR ADVENTURER</h2>
+    <span class="diamond">✦</span>
+    <div class="line"></div>
+  </div>
+
+  <!-- Character Grid -->
+  <div class="char-grid" id="charGrid">
+
+    <div class="char-card selected" data-class="ranger" data-id="1" data-name="Azure" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char1.jpg" alt="Azure" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#1a2a1a';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="pirate" data-id="2" data-name="Lunara" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char2.jpg" alt="Lunara" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#2a1a1a';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="mage" data-id="3" data-name="Kael" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char3.jpg" alt="Kael" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#1a1030';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="explorer" data-id="4" data-name="Sylva" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char4.jpg" alt="Sylva" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#1a1810';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="priestess" data-id="5" data-name="Elior" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char5.jpg" alt="Elior" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#0a1a2a';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="assassin" data-id="6" data-name="Roselyn" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char6.jpg" alt="Roselyn" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#0a0d1a';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="knight" data-id="7" data-name="Veyl" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char7.jpg" alt="Veyl" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#2a1000';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="scholar" data-id="8" data-name="Nox" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char8.jpg" alt="Nox" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#1a1800';this.src=''"/>
+    </div>
+
+  </div><!-- /char-grid -->
+
+  <!-- Steps Panel -->
+  <div class="steps-panel">
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Connect Wallet</div>
+      <div class="step-desc">Connect your wallet to start your adventure.</div>
+      <button class="btn-wallet">
+        <span>&#9741;</span> CONNECT WALLET
+      </button>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Enter Name</div>
+      <div class="step-desc">Give your adventurer a unique name.</div>
+      <input class="name-input" id="nameInput" type="text" placeholder="Enter your name..." maxlength="20" oninput="updateName(this)"/>
+      <div class="char-count" id="charCount">0/20</div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Selected Character</div>
+      <div class="step-desc">This is your chosen adventurer.</div>
+      <div class="sel-char" id="selCharDisplay">
+        <img id="selCharImg" src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char1.jpg" alt="Selected"/>
+        <span id="selCharName">Azure</span>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Ready to Begin</div>
+      <div class="step-desc">Confirm your info and enter the world!</div>
+      <button class="btn-start" id="startBtn">
+        START JOURNEY ✕
+      </button>
+    </div>
+
+  </div><!-- /steps-panel -->
+
+  <!-- How to Play -->
+  <div class="section-header" style="margin-top:32px;">
+    <div class="line"></div>
+    <span class="diamond">✦</span>
+    <h2>HOW TO PLAY</h2>
+    <span class="diamond">✦</span>
+    <div class="line"></div>
+  </div>
+
+  <div class="how-grid">
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-green)">&#9670;</div>
+      <div class="how-title">Choose a Character</div>
+      <div class="how-desc">Select one of 8 unique adventurers.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--gold-light)">&#9788;</div>
+      <div class="how-title">Explore the World</div>
+      <div class="how-desc">Travel across floating islands and ancient lands.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-purple)">&#9672;</div>
+      <div class="how-title">Collect Runes</div>
+      <div class="how-desc">Find magical runes and valuable treasures.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-red)">&#10005;</div>
+      <div class="how-title">Battle Monsters</div>
+      <div class="how-desc">Fight enemies and clear dangerous dungeons.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--gold)">&#8962;</div>
+      <div class="how-title">Upgrade Your Hero</div>
+      <div class="how-desc">Level up your character and unlock new powers.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-blue)">&#9741;</div>
+      <div class="how-title">On-Chain Progress</div>
+      <div class="how-desc">Your progress and items live on-chain forever.</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-copy">© 2026 Slime Runes. All rights reserved.</div>
+    <div class="social-links">
+      <a class="social-btn" href="#" title="Discord">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      </a>
+      <a class="social-btn" href="#" title="X / Twitter">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a class="social-btn" href="#" title="Telegram">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      </a>
+    </div>
+    <div class="footer-right">Fantasy On-Chain Adventure</div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  const chars = {
+    '1': { name: 'Azure',   img: 'char1.jpg' },
+    '2': { name: 'Lunara',  img: 'char2.jpg' },
+    '3': { name: 'Kael',    img: 'char3.jpg' },
+    '4': { name: 'Sylva',   img: 'char4.jpg' },
+    '5': { name: 'Elior',   img: 'char5.jpg' },
+    '6': { name: 'Roselyn', img: 'char6.jpg' },
+    '7': { name: 'Veyl',    img: 'char7.jpg' },
+    '8': { name: 'Nox',     img: 'char8.jpg' },
+  };
+  const BASE = 'https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/';
+
+  function selectChar(el) {
+    document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const id = el.dataset.id;
+    const ch = chars[id];
+    document.getElementById('selCharImg').src = BASE + ch.img;
+    document.getElementById('selCharName').textContent = ch.name;
+  }
+
+  function updateName(input) {
+    document.getElementById('charCount').textContent = input.value.length + '/20';
+  }
+</script>
+</body>
+</html>
