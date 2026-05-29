@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runic Explorer — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #f5c842;
+    --gold-dark: #c8941a;
+    --gold-light: #ffe97a;
+    --blue-glow: #4ab8ff;
+    --blue-deep: #1a3a6e;
+    --purple: #9b5de5;
+    --purple-glow: #c77dff;
+    --dark: #0a0d14;
+    --ui-bg: rgba(8, 12, 22, 0.88);
+    --ui-border: linear-gradient(135deg, #f5c842, #8a5f10, #f5c842);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #050810;
+    font-family: 'Crimson Pro', serif;
+    user-select: none;
+    -webkit-user-select: none;
+    /* Letterbox bg for desktop */
+    background-image:
+      radial-gradient(ellipse 80% 80% at 50% 50%, #0d1020 0%, #050810 100%);
+  }
+
+  /* ─── OUTER SHELL: centers & scales the game canvas ─── */
+  #shell {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      repeating-linear-gradient(
+        45deg,
+        rgba(245,200,66,0.015) 0px, rgba(245,200,66,0.015) 1px,
+        transparent 1px, transparent 40px
+      ),
+      radial-gradient(ellipse 100% 100% at 50% 50%, #0d1428 0%, #050810 100%);
+  }
+
+  /* ─── GAME CONTAINER: fixed 16:9 canvas, scales via JS ─── */
+  #game {
+    position: relative;
+    width: 960px;
+    height: 540px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transform-origin: center center;
+    /* Sharp border for desktop letterbox */
+    box-shadow:
+      0 0 0 1px rgba(245,200,66,0.15),
+      0 0 60px rgba(74,184,255,0.1),
+      0 30px 80px rgba(0,0,0,0.8);
+    border-radius: 4px;
+  }
+
+  /* ─── BACKGROUND ─── */
+  #bg {
+    position: absolute; inset: 0;
+    background:
+      url('https://raw.githubusercontent.com/alcenime/Slime/main/assets/dashboard/backgrounddashboard.jpg')
+      center center / cover no-repeat;
+    z-index: 0;
+  }
+  #bg::before { display: none; }
+  #bg::after { display: none; }
+
+  /* ─── WORLD LAYER ─── */
+  #world { display: none; }
+
+  /* ─── TOP HUD ─── */
+  #hud-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    padding: 10px 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  /* Player card */
+  .player-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--ui-bg);
+    border: 1.5px solid transparent;
+    border-image: linear-gradient(135deg, #f5c842, #8a5f10, #f5c842) 1;
+    border-radius: 12px;
+    padding: 6px 12px 6px 6px;
+    backdrop-filter: blur(8px);
+    min-width: 160px;
+  }
+
+  .avatar-wrap {
+    position: relative;
+    width: 44px; height: 44px;
+    flex-shrink: 0;
+  }
+
+  .avatar-ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 8px var(--gold), inset 0 0 4px rgba(245,200,66,0.3);
+  }
+
+  .avatar-img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: linear-gradient(135deg, #2a3a5e, #1a2a4a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    overflow: hidden;
+  }
+
+  /* SVG face */
+  .avatar-svg {
+    width: 100%; height: 100%;
+  }
+
+  .player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .player-name {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .player-level {
+    font-size: 10px;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .xp-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .xp-bar {
+    width: 90px; height: 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid rgba(74,184,255,0.3);
+  }
+
+  .xp-fill {
+    height: 100%;
+    width: 61%;
+    background: linear-gradient(90deg, #1a9ee8, #4ab8ff, #7dd4ff);
+    border-radius: 3px;
+    box-shadow: 0 0 4px rgba(74,184,255,0.8);
+    animation: xpPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes xpPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+  }
+
+  .xp-text {
+    font-size: 8px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* Currency row */
+  .currency-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .currency-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--ui-bg);
+    border: 1.5px solid;
+    border-radius: 20px;
+    padding: 5px 10px 5px 6px;
+    backdrop-filter: blur(8px);
+    position: relative;
+  }
+
+  .c-gold { border-color: var(--gold); }
+  .c-gem { border-color: var(--blue-glow); }
+  .c-energy { border-color: #f0a020; }
+
+  .currency-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .c-gold .currency-icon { background: radial-gradient(circle, #ffe060, #d4a010); box-shadow: 0 0 6px rgba(245,200,66,0.7); }
+  .c-gem .currency-icon { background: radial-gradient(circle, #80d0ff, #2070c0); box-shadow: 0 0 6px rgba(74,184,255,0.7); }
+  .c-energy .currency-icon { background: radial-gradient(circle, #ffe080, #e08010); box-shadow: 0 0 6px rgba(240,160,32,0.7); }
+
+  .currency-val {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .currency-plus {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .currency-plus:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ─── MAIN SCENE AREA ─── */
+  #scene {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    overflow: hidden;
+  }
+
+  /* ─── PORTAL ─── */
+  .portal {
+    position: absolute;
+    right: 8%; bottom: 22%;
+    width: 130px; height: 160px;
+  }
+
+  .portal-glow {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(74,184,255,0.4) 0%, transparent 70%);
+    animation: portalGlow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes portalGlow {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(1.15); opacity: 1; }
+  }
+
+  .portal-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid;
+    animation: portalSpin linear infinite;
+  }
+
+  .portal-ring-1 {
+    inset: 0;
+    border-color: rgba(74,184,255,0.9) rgba(74,184,255,0.2) rgba(74,184,255,0.9) rgba(74,184,255,0.2);
+    animation-duration: 3s;
+  }
+  .portal-ring-2 {
+    inset: 12px;
+    border-color: rgba(120,200,255,0.7) rgba(120,200,255,0.1) rgba(120,200,255,0.7) rgba(120,200,255,0.1);
+    animation-duration: 2s;
+    animation-direction: reverse;
+  }
+  .portal-ring-3 {
+    inset: 24px;
+    border-color: rgba(160,220,255,0.5) rgba(160,220,255,0.1) rgba(160,220,255,0.5) rgba(160,220,255,0.1);
+    animation-duration: 4s;
+  }
+
+  @keyframes portalSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .portal-inner {
+    position: absolute;
+    inset: 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,240,255,0.9) 0%, rgba(74,184,255,0.7) 40%, rgba(20,80,160,0.8) 100%);
+    box-shadow: inset 0 0 20px rgba(74,184,255,0.9), 0 0 30px rgba(74,184,255,0.5);
+    animation: portalPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes portalPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  /* Stone arch around portal */
+  .portal-arch {
+    position: absolute;
+    inset: -30px -20px;
+    border: 8px solid;
+    border-color: #8a7050 #6a5030 #8a7050 #6a5030;
+    border-radius: 50% 50% 10px 10px / 60% 60% 10px 10px;
+    background: transparent;
+    box-shadow: inset 0 0 0 3px #c0a060, 0 0 0 2px #4a3010;
+  }
+
+  /* Gold rune decorations on arch */
+  .portal-rune {
+    position: absolute;
+    font-size: 10px;
+    color: var(--gold);
+    text-shadow: 0 0 4px var(--gold);
+    animation: runeFade 3s ease-in-out infinite;
+  }
+  .rune-1 { top: 5%; left: -5%; animation-delay: 0s; }
+  .rune-2 { top: 5%; right: -5%; animation-delay: 0.5s; }
+  .rune-3 { top: 30%; left: -12%; animation-delay: 1s; }
+  .rune-4 { top: 30%; right: -12%; animation-delay: 1.5s; }
+
+  @keyframes runeFade {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* ─── HERO CHARACTER ─── */
+  .hero {
+    position: absolute;
+    right: 14%; bottom: 14%;
+    width: 140px; height: 230px;
+    animation: heroFloat 4s ease-in-out infinite;
+  }
+
+  @keyframes heroFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .hero-svg {
+    width: 100%; height: 100%;
+  }
+
+  /* ─── SLIMES ─── */
+  .slimes-area {
+    position: absolute;
+    left: 1%; bottom: 15%;
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    z-index: 6;
+  }
+
+  .slime {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: slimeBounce ease-in-out infinite;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .slime:hover { transform: scale(1.15) !important; }
+
+  @keyframes slimeBounce {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    40% { transform: translateY(-8px) scaleY(1.05); }
+    60% { transform: translateY(-6px) scaleY(1.02); }
+    80% { transform: translateY(-2px) scaleY(0.98); }
+  }
+
+  .s1 { animation-duration: 2.2s; animation-delay: 0s; }
+  .s2 { animation-duration: 2.8s; animation-delay: 0.4s; }
+  .s3 { animation-duration: 2.5s; animation-delay: 0.8s; }
+  .s4 { animation-duration: 3s; animation-delay: 0.2s; position: absolute; right: -5%; bottom: 0; }
+
+  .slime-body {
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .slime-eyes {
+    position: absolute;
+    bottom: 38%;
+    display: flex;
+    gap: 18%;
+    width: 60%;
+    justify-content: center;
+  }
+
+  .slime-eye {
+    width: 22%;
+    aspect-ratio: 1;
+    background: #1a0a30;
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .slime-eye::after {
+    content: '';
+    position: absolute;
+    top: 10%; right: 10%;
+    width: 35%; height: 35%;
+    background: #fff;
+    border-radius: 50%;
+  }
+
+  .slime-smile {
+    position: absolute;
+    bottom: 22%;
+    width: 40%;
+    height: 12%;
+    border-bottom: 2px solid rgba(0,0,0,0.5);
+    border-radius: 0 0 50% 50%;
+  }
+
+  .slime-shine {
+    position: absolute;
+    top: 12%; left: 18%;
+    width: 20%; height: 14%;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    transform: rotate(-20deg);
+  }
+
+  .slime-shadow {
+    width: 80%;
+    height: 6px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 50%;
+    margin-top: 2px;
+    filter: blur(2px);
+  }
+
+  /* Slime size variants */
+  .slime-lg .slime-body { width: 70px; height: 65px; }
+  .slime-md .slime-body { width: 58px; height: 54px; }
+  .slime-sm .slime-body { width: 48px; height: 44px; }
+  .slime-xs .slime-body { width: 35px; height: 33px; }
+
+  /* Slime colors */
+  .slime-blue .slime-body { background: radial-gradient(ellipse 60% 60% at 40% 35%, #80d8ff, #1a8ae8 60%, #0d5ab0); box-shadow: 0 4px 15px rgba(30,140,240,0.5); }
+  .slime-green .slime-body { background: radial-gradient(ellipse 60% 60% at 40% 35%, #a8f060, #48c030 60%, #2a8018); box-shadow: 0 4px 15px rgba(70,190,50,0.5); }
+  .slime-purple .slime-body { background: radial-gradient(ellipse 60% 60% at 40% 35%, #c090f0, #7030d0 60%, #4a1090); box-shadow: 0 4px 15px rgba(120,60,200,0.5); }
+  .slime-pink .slime-body { background: radial-gradient(ellipse 60% 60% at 40% 35%, #ffb0e0, #e060b0 60%, #b03080); box-shadow: 0 4px 15px rgba(220,80,160,0.5); }
+
+  /* Slime antennae */
+  .slime-antenna {
+    position: absolute;
+    top: -25%;
+    width: 3px;
+    height: 18px;
+    background: inherit;
+    border-radius: 3px;
+    left: 35%;
+  }
+  .slime-antenna::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -3px;
+    width: 8px; height: 8px;
+    background: inherit;
+    border-radius: 50%;
+  }
+
+  /* Blue slime horn / drop */
+  .slime-drop {
+    position: absolute;
+    top: -22%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px; height: 18px;
+    background: inherit;
+    clip-path: polygon(50% 0%, 90% 80%, 100% 100%, 0% 100%, 10% 80%);
+    border-radius: 50% 50% 40% 40%;
+  }
+
+  /* ─── SPARKLE PARTICLES ─── */
+  .sparkle {
+    position: absolute;
+    pointer-events: none;
+    animation: sparkleFly linear infinite;
+  }
+
+  @keyframes sparkleFly {
+    0% { opacity: 0; transform: scale(0) rotate(0deg); }
+    20% { opacity: 1; }
+    80% { opacity: 0.8; }
+    100% { opacity: 0; transform: scale(1.5) rotate(180deg) translate(20px, -30px); }
+  }
+
+  .sparkle::before {
+    content: '✦';
+    font-size: 10px;
+    color: var(--gold-light);
+    text-shadow: 0 0 4px var(--gold);
+  }
+
+  /* ─── BOTTOM NAV ─── */
+  #nav-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: 0 8px 12px;
+  }
+
+  .nav-container {
+    background: linear-gradient(180deg, rgba(8,12,22,0.95) 0%, rgba(5,8,18,0.98) 100%);
+    border: 1.5px solid;
+    border-image: linear-gradient(90deg, #8a5f10, #f5c842, #f5c842, #f5c842, #8a5f10) 1;
+    border-radius: 20px;
+    padding: 8px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: relative;
+    box-shadow:
+      0 -4px 20px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(245,200,66,0.1),
+      0 0 30px rgba(245,200,66,0.08);
+  }
+
+  /* Gold corner accents */
+  .nav-container::before,
+  .nav-container::after {
+    content: '❖';
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--gold-dark);
+    opacity: 0.6;
+  }
+  .nav-container::before { left: 6px; }
+  .nav-container::after { right: 6px; }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 12px;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    min-width: 60px;
+  }
+
+  .nav-item:hover {
+    background: rgba(245,200,66,0.08);
+    transform: translateY(-2px);
+  }
+
+  .nav-item.active .nav-label { color: var(--gold); }
+  .nav-item.active .nav-icon { color: var(--gold); filter: drop-shadow(0 0 6px rgba(245,200,66,0.8)); }
+
+  .nav-icon {
+    font-size: 22px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1;
+    transition: all 0.25s;
+  }
+
+  .nav-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    transition: color 0.25s;
+  }
+
+  /* Active dot indicator */
+  .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 6px var(--gold);
+  }
+
+  /* ─── SUMMON CENTER BUTTON ─── */
+  .nav-summon {
+    position: relative;
+    margin-top: -36px;
+    z-index: 12;
+    min-width: 80px;
+  }
+
+  .summon-btn {
+    position: relative;
+    width: 72px; height: 72px;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .summon-btn:hover { transform: scale(1.1) translateY(-4px); }
+  .summon-btn:active { transform: scale(0.95); }
+
+  .summon-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid;
+    animation: summonRingSpin linear infinite;
+  }
+
+  .summon-ring-1 {
+    border-color: #ff8c20 transparent #ff8c20 transparent;
+    animation-duration: 3s;
+  }
+  .summon-ring-2 {
+    inset: 4px;
+    border-color: var(--gold) transparent var(--gold) transparent;
+    animation-duration: 2s;
+    animation-direction: reverse;
+  }
+
+  @keyframes summonRingSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .summon-gem {
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255,200,100,0.9), #c85a10 40%, #6a2000 80%);
+    box-shadow:
+      0 0 20px rgba(220,120,30,0.8),
+      0 0 40px rgba(220,120,30,0.4),
+      inset 0 0 15px rgba(255,180,80,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: summonGemPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes summonGemPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(220,120,30,0.8), 0 0 40px rgba(220,120,30,0.4); }
+    50% { box-shadow: 0 0 30px rgba(255,150,40,1), 0 0 60px rgba(220,120,30,0.6), 0 0 80px rgba(220,120,30,0.2); }
+  }
+
+  .gem-icon {
+    font-size: 26px;
+    filter: drop-shadow(0 0 6px rgba(255,180,80,0.9));
+    animation: gemRotate 6s ease-in-out infinite;
+  }
+
+  @keyframes gemRotate {
+    0%, 100% { transform: rotate(-5deg) scale(1); }
+    50% { transform: rotate(5deg) scale(1.1); }
+  }
+
+  .summon-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #ffaa44;
+    text-transform: uppercase;
+    margin-top: 2px;
+    text-shadow: 0 0 8px rgba(220,120,30,0.8);
+  }
+
+  /* ─── GLOBAL CHAT ─── */
+  #chat-toggle {
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    width: 28px; height: 56px;
+    background: linear-gradient(180deg, rgba(8,12,22,0.92) 0%, rgba(12,18,32,0.95) 100%);
+    border: 1.5px solid rgba(245,200,66,0.4);
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(8px);
+  }
+  #chat-toggle:hover {
+    background: rgba(245,200,66,0.08);
+    border-color: rgba(245,200,66,0.7);
+    width: 32px;
+  }
+  #chat-toggle .ct-icon { font-size: 13px; line-height: 1; }
+  #chat-toggle .ct-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #44ff88;
+    box-shadow: 0 0 5px #44ff88;
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+  #chat-toggle .ct-unread {
+    position: absolute;
+    top: 4px; right: 3px;
+    background: #e03030;
+    border-radius: 50%;
+    width: 10px; height: 10px;
+    font-size: 7px;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 4px rgba(220,50,50,0.8);
+    display: none;
+  }
+  #chat-toggle .ct-unread.show { display: flex; }
+
+  /* Chat panel */
+  #chat-panel {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 220px;
+    background: linear-gradient(180deg, rgba(6,10,20,0.97) 0%, rgba(8,14,26,0.98) 100%);
+    border-right: 1.5px solid rgba(245,200,66,0.25);
+    z-index: 19;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+    backdrop-filter: blur(12px);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.6);
+  }
+  #chat-panel.open { transform: translateX(0); }
+
+  /* Chat header */
+  .chat-header {
+    padding: 8px 10px 6px;
+    border-bottom: 1px solid rgba(245,200,66,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .chat-header-left {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chat-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+  }
+  .chat-online {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 8px;
+    color: rgba(255,255,255,0.45);
+  }
+  .online-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #44ff88;
+    box-shadow: 0 0 4px #44ff88;
+    flex-shrink: 0;
+  }
+  .chat-close {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: rgba(255,255,255,0.4);
+    cursor: pointer; transition: all 0.2s;
+    line-height: 1;
+  }
+  .chat-close:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+
+  /* Channel tabs */
+  .chat-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(245,200,66,0.1);
+    flex-shrink: 0;
+  }
+  .chat-tab {
+    flex: 1;
+    padding: 5px 4px;
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    text-transform: uppercase;
+  }
+  .chat-tab.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+    background: rgba(245,200,66,0.05);
+  }
+  .chat-tab:hover:not(.active) { color: rgba(255,255,255,0.6); }
+
+  /* Messages area */
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245,200,66,0.2) transparent;
+  }
+  .chat-messages::-webkit-scrollbar { width: 3px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: rgba(245,200,66,0.2); border-radius: 2px; }
+
+  .chat-msg {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    animation: msgSlideIn 0.25s ease-out;
+  }
+  @keyframes msgSlideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .msg-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .msg-avatar {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .msg-name {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    font-weight: 700;
+  }
+  .msg-time {
+    font-size: 7px;
+    color: rgba(255,255,255,0.25);
+    margin-left: auto;
+  }
+  .msg-lv {
+    font-size: 7px;
+    color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.07);
+    border-radius: 3px;
+    padding: 0px 3px;
+  }
+  .msg-text {
+    font-size: 9px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.4;
+    padding-left: 18px;
+    word-break: break-word;
+  }
+
+  /* Name colors by role */
+  .name-gold { color: var(--gold); }
+  .name-blue { color: #4ab8ff; }
+  .name-green { color: #44ee88; }
+  .name-purple { color: #c77dff; }
+  .name-red { color: #ff6666; }
+
+  /* System message */
+  .chat-system {
+    text-align: center;
+    font-size: 8px;
+    color: rgba(255,255,255,0.25);
+    padding: 2px 0;
+    font-style: italic;
+  }
+  .chat-system span {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 2px 8px;
+  }
+
+  /* Input area */
+  .chat-input-area {
+    padding: 6px 8px 7px;
+    border-top: 1px solid rgba(245,200,66,0.12);
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .chat-input {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 5px 8px;
+    font-size: 9px;
+    color: #fff;
+    font-family: 'Crimson Pro', serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .chat-input::placeholder { color: rgba(255,255,255,0.25); }
+  .chat-input:focus { border-color: rgba(245,200,66,0.4); }
+  .chat-send {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c8901a, #f5c842);
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px rgba(245,200,66,0.3);
+  }
+  .chat-send:hover { transform: scale(1.1); box-shadow: 0 0 12px rgba(245,200,66,0.5); }
+  .chat-send:active { transform: scale(0.92); }
+  .float-notif {
+    position: absolute;
+    background: var(--ui-bg);
+    border: 1px solid var(--gold);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    color: var(--gold);
+    white-space: nowrap;
+    animation: floatUp 4s ease-in-out infinite;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(10px); }
+    20% { opacity: 1; transform: translateY(0); }
+    70% { opacity: 1; transform: translateY(-5px); }
+    100% { opacity: 0; transform: translateY(-15px); }
+  }
+
+  /* ─── DAILY REWARD BADGE ─── */
+  .daily-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    z-index: 8;
+    background: linear-gradient(135deg, #e03030, #a01010);
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+    font-family: 'Cinzel', serif;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(220,50,50,0.6);
+    animation: badgePulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  /* ─── WORLD MAP BUTTON ─── */
+  .btn-worldmap {
+    position: absolute;
+    top: 50%; left: 4%;
+    transform: translateY(-50%);
+    z-index: 7;
+    background: var(--ui-bg);
+    border: 1.5px solid var(--gold);
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: all 0.2s;
+  }
+
+  .btn-worldmap:hover {
+    background: rgba(245,200,66,0.1);
+    box-shadow: 0 0 12px rgba(245,200,66,0.3);
+  }
+
+  .btn-worldmap .bw-icon { font-size: 18px; }
+  .btn-worldmap .bw-label {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  /* ─── QUEST INDICATOR ─── */
+  .quest-indicator {
+    position: absolute;
+    top: 12%; right: 3%;
+    z-index: 7;
+    background: var(--ui-bg);
+    border: 1.5px solid rgba(74,184,255,0.7);
+    border-radius: 12px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: all 0.2s;
+    animation: questBlink 3s ease-in-out infinite;
+  }
+
+  @keyframes questBlink {
+    0%, 80%, 100% { border-color: rgba(74,184,255,0.7); }
+    40% { border-color: rgba(74,184,255,1); box-shadow: 0 0 10px rgba(74,184,255,0.4); }
+  }
+
+  .quest-icon { font-size: 14px; }
+  .quest-text {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    color: var(--blue-glow);
+  }
+
+  /* ─── SPARKLE POSITIONS ─── */
+  .sp1 { top: 25%; left: 10%; animation-duration: 3.5s; animation-delay: 0s; }
+  .sp2 { top: 15%; left: 45%; animation-duration: 4s; animation-delay: 0.7s; }
+  .sp3 { top: 40%; left: 60%; animation-duration: 3s; animation-delay: 1.2s; }
+  .sp4 { top: 55%; left: 25%; animation-duration: 4.5s; animation-delay: 0.3s; }
+  .sp5 { top: 30%; right: 30%; animation-duration: 3.2s; animation-delay: 1.8s; }
+
+  /* ─── LETTERBOX DECORATIVE BARS ─── */
+  /* Shown only when game canvas doesn't fill full window (desktop) */
+  #shell::before, #shell::after {
+    content: '';
+    position: absolute;
+    background: linear-gradient(90deg, transparent, rgba(245,200,66,0.04), transparent);
+    pointer-events: none;
+  }
+  #shell::before {
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,200,66,0.2), transparent);
+  }
+  #shell::after {
+    bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,200,66,0.2), transparent);
+  }
+</style>
+</head>
+<body>
+<div id="shell">
+<div id="game">
+
+  <!-- Background Music -->
+  <audio id="bgm" src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/dashboard/soundgame.mp3" loop preload="auto"></audio>
+
+  <!-- Music Toggle Button -->
+  <div id="music-btn" onclick="toggleMusic()" title="Toggle Music" style="
+    position: absolute;
+    top: 10px; right: 10px;
+    z-index: 30;
+    width: 32px; height: 32px;
+    background: rgba(8,12,22,0.85);
+    border: 1.5px solid rgba(245,200,66,0.5);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s;
+    box-shadow: 0 0 8px rgba(245,200,66,0.15);
+    font-size: 14px;
+    user-select: none;
+  ">🔊</div>
+
+  <!-- Background -->
+  <div id="bg"></div>
+
+  <!-- World Art Layer -->
+  <div id="world">
+    <div class="foliage"></div>
+    <div class="foliage foliage-right"></div>
+    <div class="ground"></div>
+    <div class="path"></div>
+    <div class="river"></div>
+    <div class="flowers"></div>
+
+    <!-- Castle towers -->
+    <div class="castle-group">
+      <div class="tower tower-far-l"></div>
+      <div class="tower tower-left"></div>
+      <div class="tower tower-main"></div>
+      <div class="tower tower-right"></div>
+      <div class="tower tower-far-r"></div>
+    </div>
+  </div>
+
+  <!-- TOP HUD -->
+  <div id="hud-top">
+
+    <!-- Player Card -->
+    <div class="player-card">
+      <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        <div class="avatar-img">
+          <!-- SVG anime character avatar -->
+          <svg class="avatar-svg" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="22" cy="22" r="22" fill="#1a2a4a"/>
+            <!-- Hair -->
+            <ellipse cx="22" cy="14" rx="11" ry="10" fill="#1a1a2e"/>
+            <ellipse cx="22" cy="20" rx="10" ry="8" fill="#1a1a2e"/>
+            <!-- Face -->
+            <ellipse cx="22" cy="22" rx="9" ry="10" fill="#f5c8a0"/>
+            <!-- Hair top -->
+            <ellipse cx="22" cy="12" rx="11" ry="7" fill="#0a0a1e"/>
+            <ellipse cx="14" cy="15" rx="4" ry="6" fill="#0a0a1e"/>
+            <ellipse cx="30" cy="15" rx="3" ry="5" fill="#0a0a1e"/>
+            <!-- Eyes -->
+            <ellipse cx="18" cy="22" rx="2.5" ry="3" fill="#1a3a6e"/>
+            <ellipse cx="26" cy="22" rx="2.5" ry="3" fill="#1a3a6e"/>
+            <circle cx="18" cy="22" r="1.8" fill="#0a1a3e"/>
+            <circle cx="26" cy="22" r="1.8" fill="#0a1a3e"/>
+            <circle cx="18.7" cy="21" r="0.7" fill="#fff" opacity="0.9"/>
+            <circle cx="26.7" cy="21" r="0.7" fill="#fff" opacity="0.9"/>
+            <!-- Mouth -->
+            <path d="M19.5 27 Q22 29 24.5 27" stroke="#c87070" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+            <!-- Collar -->
+            <path d="M12 40 Q22 36 32 40 L32 44 L12 44 Z" fill="#1a2a4a"/>
+            <path d="M18 36 L22 32 L26 36" fill="#0a1a2e"/>
+          </svg>
+        </div>
+      </div>
+      <div class="player-info">
+        <div>
+          <span class="player-name">RunicExplorer01</span>
+          <span class="player-level"> · Lv.25</span>
+        </div>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar"><div class="xp-fill"></div></div>
+          <span class="xp-text">2,150 / 3,500 XP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Currencies -->
+    <div class="currency-row">
+      <div class="currency-pill c-gold">
+        <div class="currency-icon">⭐</div>
+        <span class="currency-val">1,200,000</span>
+        <div class="currency-plus">+</div>
+      </div>
+      <div class="currency-pill c-gem">
+        <div class="currency-icon">💎</div>
+        <span class="currency-val">5,400</span>
+        <div class="currency-plus">+</div>
+      </div>
+      <div class="currency-pill c-energy">
+        <div class="currency-icon">⚡</div>
+        <span class="currency-val">75 / 100</span>
+        <div class="currency-plus">+</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN SCENE -->
+  <div id="scene">
+
+    <!-- CHAT TOGGLE BUTTON -->
+    <div id="chat-toggle" onclick="toggleChat()">
+      <span class="ct-icon">💬</span>
+      <div class="ct-dot"></div>
+      <div class="ct-unread" id="ct-unread">3</div>
+    </div>
+
+    <!-- GLOBAL CHAT PANEL -->
+    <div id="chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <span class="chat-title">⚔ Global Chat</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="chat-online"><div class="online-dot"></div><span id="online-count">1,284</span> online</div>
+          <div class="chat-close" onclick="toggleChat()">✕</div>
+        </div>
+      </div>
+
+      <div class="chat-tabs">
+        <div class="chat-tab active" onclick="switchTab(this,'global')">🌐 Global</div>
+        <div class="chat-tab" onclick="switchTab(this,'guild')">🏰 Guild</div>
+        <div class="chat-tab" onclick="switchTab(this,'trade')">💰 Trade</div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-system"><span>⚔ Welcome to Runic World ⚔</span></div>
+      </div>
+
+      <div class="chat-input-area">
+        <input class="chat-input" id="chat-input" type="text" placeholder="Say something..." maxlength="80"
+          onkeydown="if(event.key==='Enter') sendChat()">
+        <button class="chat-send" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div id="nav-bar">
+    <div class="nav-container">
+
+      <div class="nav-item active" onclick="setActive(this)">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+      </div>
+
+      <div class="nav-item" onclick="setActive(this)">
+        <span class="nav-icon">⚒️</span>
+        <span class="nav-label">Craft</span>
+      </div>
+
+      <!-- ADVENTURE CENTER -->
+      <div class="nav-summon" onclick="onAdventureClick()">
+        <div class="summon-btn">
+          <div class="summon-ring summon-ring-1"></div>
+          <div class="summon-ring summon-ring-2"></div>
+          <div class="summon-gem" style="background: radial-gradient(circle at 35% 30%, rgba(255,200,100,0.9), #c85a10 40%, #6a2000 80%); box-shadow: 0 0 20px rgba(220,120,30,0.8), 0 0 40px rgba(220,120,30,0.4);">
+            <span class="gem-icon">⚔️</span>
+          </div>
+        </div>
+        <span class="summon-label" style="color: #ffaa44; text-shadow: 0 0 8px rgba(220,120,30,0.8);">Adventure</span>
+      </div>
+
+      <div class="nav-item" onclick="setActive(this)">
+        <span class="nav-icon">💠</span>
+        <span class="nav-label">Summon</span>
+      </div>
+
+      <div class="nav-item" onclick="setActive(this)">
+        <span class="nav-icon">⚖️</span>
+        <span class="nav-label">Market</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function onAdventureClick() {
+    const gem = document.querySelector('.summon-gem');
+    gem.style.transform = 'scale(1.3)';
+    gem.style.transition = 'transform 0.15s';
+    setTimeout(() => { gem.style.transform = ''; }, 200);
+
+    // Adventure flash effect — orange/fire
+    const flash = document.createElement('div');
+    flash.style.cssText = `
+      position:fixed; inset:0; z-index:99;
+      background: radial-gradient(circle, rgba(220,120,30,0.35), transparent 70%);
+      pointer-events:none;
+      animation: flashOut 0.5s ease-out forwards;
+    `;
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 500);
+
+    // Navigate to adventure page after flash
+    setTimeout(() => {
+      window.location.href = 'adventure.html';
+    }, 400);
+  }
+
+  // Animate slime clicks
+  document.querySelectorAll('.slime').forEach(slime => {
+    slime.addEventListener('click', function() {
+      this.style.animation = 'none';
+      this.style.transform = 'scale(0.85)';
+      setTimeout(() => {
+        this.style.transform = '';
+        this.style.animation = '';
+      }, 150);
+
+      // Spawn heart
+      const heart = document.createElement('div');
+      heart.textContent = '💗';
+      heart.style.cssText = `
+        position:absolute;
+        font-size: 16px;
+        pointer-events:none;
+        z-index: 20;
+        left: ${this.getBoundingClientRect().left + 10}px;
+        top: ${this.getBoundingClientRect().top - 10}px;
+        animation: heartFloat 1s ease-out forwards;
+      `;
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
+    });
+  });
+
+  // Dynamic sparkles
+  const scene = document.getElementById('scene');
+  function spawnSparkle() {
+    const sp = document.createElement('div');
+    sp.className = 'sparkle';
+    sp.style.left = Math.random() * 80 + 5 + '%';
+    sp.style.top = Math.random() * 60 + 5 + '%';
+    sp.style.animationDuration = (2 + Math.random() * 3) + 's';
+    sp.style.animationDelay = '0s';
+    scene.appendChild(sp);
+    setTimeout(() => sp.remove(), 5000);
+  }
+  setInterval(spawnSparkle, 800);
+
+  // CSS for dynamic elements
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes flashOut { 0% { opacity:1; } 100% { opacity:0; } }
+    @keyframes heartFloat {
+      0% { opacity:1; transform: translateY(0) scale(1); }
+      100% { opacity:0; transform: translateY(-50px) scale(1.5); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Energy timer
+  let energy = 75;
+  setInterval(() => {
+    if (energy < 100) {
+      energy = Math.min(100, energy + 1);
+      const val = document.querySelector('.c-energy .currency-val');
+      if (val) val.textContent = energy + ' / 100';
+    }
+  }, 60000);
+
+  // ─── GLOBAL CHAT SYSTEM ───
+  let chatOpen = false;
+  let currentTab = 'global';
+  let unreadCount = 3;
+
+  const chatData = {
+    global: [
+      { name: 'DragonSlayer99', lv: 48, color: 'name-red', bg: '#6a1010', text: 'anyone wanna do the crystal dungeon?', time: '12:01', icon: '⚔' },
+      { name: 'MysticRune', lv: 33, color: 'name-purple', bg: '#3a1060', text: 'just pulled a 5★ slime from summon 🎉', time: '12:02', icon: '🔮' },
+      { name: 'SilverWind', lv: 21, color: 'name-blue', bg: '#0a2a5e', text: 'how do i unlock the second dungeon floor', time: '12:03', icon: '💎' },
+      { name: 'RunicExplorer01', lv: 25, color: 'name-gold', bg: '#3a2a00', text: 'need 2 more for guild raid tonight', time: '12:04', icon: '⭐', isMe: true },
+      { name: 'LunarEcho', lv: 55, color: 'name-green', bg: '#0a3a18', text: 'guild raid starting in 30min, be ready', time: '12:05', icon: '🌙' },
+    ],
+    guild: [
+      { name: 'GuildMaster', lv: 72, color: 'name-gold', bg: '#3a2a00', text: '🏆 Guild Quest reset! Check board', time: '11:55', icon: '👑' },
+      { name: 'IronShield', lv: 41, color: 'name-blue', bg: '#0a2a5e', text: 'donated 500 gold to guild treasury', time: '11:58', icon: '🛡' },
+    ],
+    trade: [
+      { name: 'MerchantKing', lv: 60, color: 'name-green', bg: '#0a3a18', text: 'WTS: Rare Fire Rune x3 — 8,000g each', time: '12:00', icon: '💰' },
+      { name: 'GemCollector', lv: 38, color: 'name-purple', bg: '#3a1060', text: 'WTB: any 4★ slime cards, paying well', time: '12:03', icon: '💎' },
+    ]
+  };
+
+  function buildMessages(tab) {
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = '<div class="chat-system"><span>⚔ Welcome to Runic World ⚔</span></div>';
+    chatData[tab].forEach(m => appendMsg(m, false));
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function appendMsg(m, animate = true) {
+    const container = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    div.innerHTML = `
+      <div class="msg-meta">
+        <div class="msg-avatar" style="background:${m.bg}">${m.icon}</div>
+        <span class="msg-name ${m.color}">${m.name}</span>
+        <span class="msg-lv">Lv.${m.lv}</span>
+        <span class="msg-time">${m.time}</span>
+      </div>
+      <div class="msg-text">${m.text}</div>
+    `;
+    if (m.isMe) div.style.opacity = '0.9';
+    container.appendChild(div);
+    if (animate) container.scrollTop = container.scrollHeight;
+  }
+
+  function toggleChat() {
+    chatOpen = !chatOpen;
+    const panel = document.getElementById('chat-panel');
+    const toggle = document.getElementById('chat-toggle');
+    panel.classList.toggle('open', chatOpen);
+
+    if (chatOpen) {
+      unreadCount = 0;
+      document.getElementById('ct-unread').classList.remove('show');
+      buildMessages(currentTab);
+      toggle.style.left = '220px';
+      toggle.style.borderRadius = '0 10px 10px 0';
+    } else {
+      toggle.style.left = '0';
+    }
+  }
+
+  function switchTab(el, tab) {
+    document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentTab = tab;
+    buildMessages(tab);
+  }
+
+  function sendChat() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    const msg = { name: 'RunicExplorer01', lv: 25, color: 'name-gold', bg: '#3a2a00', text, time, icon: '⭐', isMe: true };
+    chatData[currentTab].push(msg);
+    appendMsg(msg);
+    input.value = '';
+  }
+
+  // Simulate incoming messages
+  const npcMsgs = [
+    { name: 'StarForge', lv: 44, color: 'name-blue', bg: '#0a2a5e', texts: ['anyone selling wind crystals?', 'just cleared floor 7! 🔥', 'this game is so good'], icon: '⚡' },
+    { name: 'VoidWalker', lv: 67, color: 'name-purple', bg: '#3a1060', texts: ['shadow dungeon is insane lv 50+', 'my slime team is unstoppable', 'who wants to party up?'], icon: '🌑' },
+    { name: 'CrystalSage', lv: 29, color: 'name-green', bg: '#0a3a18', texts: ['daily quest done ✓', 'rune crafting tip: combine 3 basic = rare', 'need help with boss 3'], icon: '🔵' },
+  ];
+
+  function simulateChat() {
+    const npc = npcMsgs[Math.floor(Math.random() * npcMsgs.length)];
+    const text = npc.texts[Math.floor(Math.random() * npc.texts.length)];
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    const msg = { ...npc, text, time };
+    chatData.global.push(msg);
+    if (chatData.global.length > 50) chatData.global.shift();
+
+    if (chatOpen && currentTab === 'global') {
+      appendMsg(msg);
+    } else if (!chatOpen) {
+      unreadCount++;
+      const badge = document.getElementById('ct-unread');
+      badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+      badge.classList.add('show');
+    }
+
+    // Fluctuate online count slightly
+    const base = 1284;
+    document.getElementById('online-count').textContent =
+      (base + Math.floor(Math.random() * 40 - 20)).toLocaleString();
+  }
+
+  setInterval(simulateChat, 4500 + Math.random() * 3000);
+
+  // ─── RESPONSIVE GAME SCALER ───
+  // Game is fixed 960×540 (16:9). Scale to fit any screen with letterbox.
+  const GAME_W = 960;
+  const GAME_H = 540;
+
+  function scaleGame() {
+    const game = document.getElementById('game');
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    const scaleX = winW / GAME_W;
+    const scaleY = winH / GAME_H;
+    // Use the smaller scale so game always fits inside window
+    const scale = Math.min(scaleX, scaleY);
+    game.style.transform = `scale(${scale})`;
+
+    // Pill shadow intensity based on scale
+    if (scale >= 1) {
+      // Large screens — show elegant border
+      game.style.boxShadow = `
+        0 0 0 1px rgba(245,200,66,0.2),
+        0 0 80px rgba(74,184,255,0.12),
+        0 40px 120px rgba(0,0,0,0.9)
+      `;
+    } else {
+      // Small screens — minimal shadow
+      game.style.boxShadow = 'none';
+    }
+  }
+
+  scaleGame();
+  window.addEventListener('resize', scaleGame);
+
+  // ─── BACKGROUND MUSIC ───
+  const bgm = document.getElementById('bgm');
+  const musicBtn = document.getElementById('music-btn');
+  let musicOn = false;
+
+  // Autoplay on first user interaction (browser policy)
+  function startMusic() {
+    bgm.volume = 0.4;
+    bgm.play().then(() => {
+      musicOn = true;
+      musicBtn.textContent = '🔊';
+    }).catch(() => {});
+    document.removeEventListener('click', startMusic);
+    document.removeEventListener('touchstart', startMusic);
+  }
+
+  document.addEventListener('click', startMusic);
+  document.addEventListener('touchstart', startMusic);
+
+  function toggleMusic() {
+    if (musicOn) {
+      bgm.pause();
+      musicOn = false;
+      musicBtn.textContent = '🔇';
+    } else {
+      bgm.play().then(() => {
+        musicOn = true;
+        musicBtn.textContent = '🔊';
+      }).catch(() => {});
+    }
+  }
+
+</script>
+</div><!-- /shell -->
+</body>
+</html>
