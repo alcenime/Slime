@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="virtual-protocol-site-verification" content="9029469ac6ffc91dbfaa22d148c39b4a" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Slime Runes – Create Your Adventurer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #d4a843;
+    --gold-light: #f5d780;
+    --gold-dark: #8a6420;
+    --navy: #0b0f2a;
+    --navy2: #111535;
+    --navy3: #181d42;
+    --panel: rgba(15,20,55,0.92);
+    --border: rgba(212,168,67,0.35);
+    --accent-green: #4cde7a;
+    --accent-purple: #a855f7;
+    --accent-red: #ef4444;
+    --accent-blue: #38bdf8;
+    --accent-orange: #fb923c;
+    --accent-white: #fef9ee;
+    --shadow-gold: 0 0 18px rgba(212,168,67,0.45);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--navy);
+    color: #e8e0cc;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO BG ── */
+  .hero-bg {
+    position: relative;
+    width: 100%;
+    min-height: 220px;
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 70%, var(--navy) 100%),
+      url('https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/backgroundchar.jpg') center center / cover no-repeat;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 28px;
+  }
+  .hero-bg::before {
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle 300px at 15% 60%, rgba(100,120,255,0.08) 0%, transparent 70%),
+      radial-gradient(circle 200px at 85% 50%, rgba(80,200,255,0.05) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  /* floating islands effect */
+  .hero-bg::after {
+    content:'';
+    position:absolute;
+    bottom:0; left:0; right:0; height:60px;
+    background: linear-gradient(to bottom, transparent, var(--navy));
+    pointer-events:none;
+  }
+
+  /* ── LOGO ── */
+  .logo-wrap {
+    position: relative;
+    z-index:2;
+    text-align: center;
+  }
+  .logo-gem {
+    width: 48px; height: 48px;
+    margin-bottom: 4px;
+  }
+  .logo-gem svg { width: 100%; height: 100%; }
+  .logo-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2rem, 7vw, 3.4rem);
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(100,180,255,0.6), 0 2px 8px rgba(0,0,0,0.8);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .logo-sub {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.65rem, 2.5vw, 0.85rem);
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .logo-tagline {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  /* portal decoration */
+  .portal {
+    position: absolute;
+    right: -10px; top: -10px;
+    width: 120px; height: 140px;
+    background: radial-gradient(circle, rgba(80,200,255,0.3) 0%, rgba(40,80,200,0.15) 50%, transparent 70%);
+    border-radius: 50% 50% 60% 60%;
+    box-shadow: 0 0 40px rgba(80,200,255,0.25);
+    opacity:0.7;
+  }
+  .castle {
+    position:absolute;
+    left:-10px; top:10px;
+    width:100px; height:120px;
+    background: linear-gradient(to bottom, rgba(180,180,220,0.07) 0%, transparent 100%);
+    opacity:0.5;
+    border-radius: 4px 4px 0 0;
+  }
+
+  /* ── MAIN CONTAINER ── */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 28px 0 18px;
+  }
+  .section-header .line {
+    flex:1; height:1px;
+    background: linear-gradient(to right, transparent, var(--gold-dark), transparent);
+  }
+  .section-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.85rem, 3vw, 1.05rem);
+    color: var(--gold-light);
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+  }
+  .section-header .diamond {
+    color: var(--gold);
+    font-size: 0.7rem;
+  }
+
+  /* ── CHARACTER GRID ── */
+  .char-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  @media(max-width:600px){ .char-grid { grid-template-columns: repeat(2,1fr); gap:8px; } }
+
+  .char-card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid rgba(212,168,67,0.2);
+    background: var(--navy3);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    aspect-ratio: 3/4;
+  }
+  .char-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    border-color: rgba(212,168,67,0.6);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5), var(--shadow-gold);
+  }
+  .char-card.selected {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 20px rgba(76,222,122,0.5), 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .char-card img {
+    width: 100%; height: 75%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+  .char-card .char-info {
+    padding: 6px 8px 8px;
+    background: linear-gradient(to bottom, rgba(10,14,40,0.9), rgba(10,14,40,1));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .char-card .slime-icon { font-size: 1.1rem; line-height:1; }
+  .char-card .char-name {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.55rem, 1.8vw, 0.72rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+  .char-card .char-symbol { font-size: 0.75rem; opacity:0.8; }
+
+  /* class accent colors */
+  .char-card[data-class="ranger"] .char-name { color: var(--accent-green); }
+  .char-card[data-class="pirate"] .char-name { color: var(--accent-red); }
+  .char-card[data-class="mage"] .char-name { color: var(--accent-purple); }
+  .char-card[data-class="explorer"] .char-name { color: var(--gold-light); }
+  .char-card[data-class="priestess"] .char-name { color: var(--accent-blue); }
+  .char-card[data-class="assassin"] .char-name { color: #4dd8e8; }
+  .char-card[data-class="knight"] .char-name { color: var(--accent-orange); }
+  .char-card[data-class="scholar"] .char-name { color: #fef08a; }
+
+  .char-card[data-class="pirate"] { border-color: rgba(239,68,68,0.3); }
+  .char-card[data-class="mage"] { border-color: rgba(168,85,247,0.3); }
+  .char-card[data-class="assassin"] { border-color: rgba(77,216,232,0.3); }
+  .char-card[data-class="knight"] { border-color: rgba(251,146,60,0.3); }
+
+  /* selected checkmark */
+  .check-badge {
+    display:none;
+    position:absolute; top:8px; right:8px;
+    width:24px; height:24px;
+    background: var(--accent-green);
+    border-radius:50%;
+    align-items:center; justify-content:center;
+    font-size:13px; color:#000; font-weight:900;
+    box-shadow:0 0 10px rgba(76,222,122,0.7);
+    z-index:5;
+  }
+  .char-card.selected .check-badge { display:flex; }
+
+  /* ── STEPS PANEL ── */
+  .steps-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 0;
+    margin-top: 20px;
+    overflow: hidden;
+  }
+  @media(max-width:600px){ .steps-panel { grid-template-columns: 1fr 1fr; } }
+
+  .step {
+    padding: 16px 12px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .step:last-child { border-right: none; }
+
+  .step-num {
+    width: 26px; height: 26px;
+    border: 2px solid var(--gold-dark);
+    border-radius: 50%;
+    display: flex; align-items:center; justify-content:center;
+    font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold);
+  }
+  .step-title {
+    font-family:'Cinzel',serif;
+    font-size:0.7rem; font-weight:700;
+    color:var(--gold-light);
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+  }
+  .step-desc {
+    font-size:0.68rem;
+    color:rgba(255,255,255,0.5);
+    line-height:1.4;
+  }
+
+  /* wallet btn */
+  .btn-wallet {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    border: none; border-radius:8px;
+    color:#fff; font-family:'Cinzel',serif;
+    font-size:0.7rem; font-weight:700;
+    letter-spacing:0.08em;
+    padding:9px 14px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    transition: opacity 0.2s, transform 0.15s;
+    white-space:nowrap;
+  }
+  .btn-wallet:hover { opacity:0.85; transform:translateY(-1px); }
+
+  /* name input */
+  .name-input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(212,168,67,0.3);
+    border-radius:7px;
+    color:#fff; font-size:0.78rem;
+    padding:8px 10px;
+    width:100%;
+    outline:none;
+    transition: border-color 0.2s;
+  }
+  .name-input::placeholder { color:rgba(255,255,255,0.3); }
+  .name-input:focus { border-color: var(--gold); }
+  .char-count { font-size:0.62rem; color:rgba(255,255,255,0.3); text-align:right; }
+
+  /* selected char display */
+  .sel-char {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius:8px;
+    padding:6px 10px;
+    display:flex; align-items:center; gap:8px;
+    font-family:'Cinzel',serif;
+    font-size:0.72rem;
+    color:var(--gold-light);
+  }
+  .sel-char img { width:32px; height:32px; border-radius:5px; object-fit:cover; }
+
+  /* start button */
+  .btn-start {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius:8px;
+    color:rgba(255,255,255,0.35);
+    font-family:'Cinzel',serif; font-size:0.7rem; font-weight:700;
+    letter-spacing:0.08em;
+    padding:9px 14px;
+    cursor:not-allowed;
+    display:flex; align-items:center; gap:6px;
+    transition: all 0.3s;
+    white-space:nowrap;
+  }
+  .btn-start.active {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    border-color: #a855f7;
+    color:#fff;
+    cursor:pointer;
+    box-shadow: 0 0 16px rgba(168,85,247,0.4);
+  }
+  .btn-start.active:hover { transform:translateY(-1px); opacity:0.9; }
+
+  /* ── HOW TO PLAY ── */
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+    margin-top: 8px;
+  }
+  @media(max-width:600px){ .how-grid { grid-template-columns: repeat(3,1fr); } }
+
+  .how-item {
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    text-align:center;
+  }
+  .how-icon { font-size:1.5rem; }
+  .how-title {
+    font-family:'Cinzel',serif;
+    font-size:0.6rem; font-weight:700;
+    color:var(--gold-light);
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+  }
+  .how-desc { font-size:0.6rem; color:rgba(255,255,255,0.45); line-height:1.4; }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    margin-top:28px; padding-top:16px;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:10px;
+  }
+  .footer-copy { font-size:0.65rem; color:rgba(255,255,255,0.3); }
+  .footer-right { font-size:0.65rem; color:rgba(255,255,255,0.3); font-family:'Cinzel',serif; letter-spacing:0.08em; }
+  .social-links { display:flex; gap:12px; align-items:center; }
+  .social-btn {
+    width:36px; height:36px; border-radius:50%;
+    border:1px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.05);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.2s; font-size:0.9rem;
+    text-decoration:none; color:#fff;
+  }
+  .social-btn:hover { border-color:var(--gold); background:rgba(212,168,67,0.1); }
+
+  /* divider ornament */
+  .ornament { color:var(--gold); font-size:0.7rem; }
+</style>
+<script type="module">
+  import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.7.3/dist/cdn/index.js'
+  import { EthersAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.7.3/dist/cdn/index.js'
+  import { base, mainnet } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.7.3/dist/cdn/networks/index.js'
+
+  const projectId = 'c44a75fad6fd23d7e5722587114f8c63'
+  const metadata = {
+    name: 'Slime Runes',
+    description: 'Fantasy On-Chain Adventure',
+    url: 'https://slimerunes.fun',
+    icons: ['https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char1.jpg']
+  }
+
+  const modal = createAppKit({
+    adapters: [new EthersAdapter()],
+    networks: [base, mainnet],
+    defaultNetwork: base,
+    metadata,
+    projectId,
+    features: { analytics: false }
+  })
+
+  window._appKit = modal
+  window._openWallet = () => modal.open()
+
+  function onWalletConnected(address) {
+    window._walletAddress = address
+    const short = address.slice(0,6) + '...' + address.slice(-4)
+    const btn = document.getElementById('walletBtn')
+    if (btn) {
+      btn.innerHTML = '<span style="font-size:0.55rem;opacity:0.7">◈</span> ' + short
+      btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)'
+      btn.style.boxShadow = '0 0 14px rgba(76,222,122,0.3)'
+    }
+    if (typeof window.checkReady === 'function') window.checkReady()
+  }
+
+  function onWalletDisconnected() {
+    window._walletAddress = null
+    const btn = document.getElementById('walletBtn')
+    if (btn) {
+      btn.innerHTML = '<span>&#9741;</span> CONNECT WALLET'
+      btn.style.background = 'linear-gradient(135deg, #7c3aed, #5b21b6)'
+      btn.style.boxShadow = 'none'
+    }
+    if (typeof window.checkReady === 'function') window.checkReady()
+  }
+
+  modal.subscribeAccount((account) => {
+    if (account?.address) onWalletConnected(account.address)
+    else onWalletDisconnected()
+  })
+
+  // Also handle injected wallet (MetaMask/Bitget in-app browser)
+  if (window.ethereum) {
+    window.ethereum.request({ method: 'eth_accounts' }).then(accs => {
+      if (accs?.[0]) onWalletConnected(accs[0])
+    }).catch(() => {})
+    window.ethereum.on('accountsChanged', accs => {
+      if (accs?.[0]) onWalletConnected(accs[0])
+      else onWalletDisconnected()
+    })
+  }
+</script>
+</head>
+<body>
+
+<!-- ── BGM ── -->
+<audio id="bgm" loop>
+  <source src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/dashboard/soundgame.mp3" type="audio/mpeg">
+</audio>
+<script>
+  const bgm = document.getElementById('bgm');
+  bgm.volume = 0.4;
+  function unlockAudio() {
+    bgm.play();
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchstart', unlockAudio);
+  }
+  document.addEventListener('click', unlockAudio);
+  document.addEventListener('touchstart', unlockAudio);
+</script>
+
+<!-- ── HERO ── -->
+<div class="hero-bg">
+  <div class="castle"></div>
+  <div class="portal"></div>
+  <div class="logo-wrap">
+    <div class="logo-gem">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="24,2 44,18 24,46 4,18" fill="none" stroke="#7ec8f7" stroke-width="1.5"/>
+        <polygon points="24,2 44,18 24,26 4,18" fill="rgba(100,200,255,0.15)" stroke="#7ec8f7" stroke-width="1"/>
+        <polygon points="24,26 44,18 24,46" fill="rgba(60,140,255,0.1)" stroke="#5aabf0" stroke-width="0.8"/>
+        <polygon points="24,26 4,18 24,46" fill="rgba(40,100,200,0.12)" stroke="#4a90e0" stroke-width="0.8"/>
+        <circle cx="24" cy="18" r="3" fill="#a8d8ff" opacity="0.8"/>
+      </svg>
+    </div>
+    <div class="logo-title">Slime<br>Runes</div>
+    <div class="logo-sub">✦ Create Your Adventurer ✦</div>
+    <div class="logo-tagline">Choose your character and begin your journey.</div>
+  </div>
+  <div style="height:32px"></div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="container">
+
+  <!-- Choose Adventurer Header -->
+  <div class="section-header">
+    <div class="line"></div>
+    <span class="diamond">✦</span>
+    <h2>CHOOSE YOUR ADVENTURER</h2>
+    <span class="diamond">✦</span>
+    <div class="line"></div>
+  </div>
+
+  <!-- Character Grid -->
+  <div class="char-grid" id="charGrid">
+
+    <div class="char-card selected" data-class="ranger" data-id="1" data-name="Azure" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char1.jpg" alt="Azure" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#1a2a1a';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="pirate" data-id="2" data-name="Lunara" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char2.jpg" alt="Lunara" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#2a1a1a';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="mage" data-id="3" data-name="Kael" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char3.jpg" alt="Kael" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#1a1030';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="explorer" data-id="4" data-name="Sylva" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char4.jpg" alt="Sylva" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#1a1810';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="priestess" data-id="5" data-name="Elior" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char5.jpg" alt="Elior" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#0a1a2a';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="assassin" data-id="6" data-name="Roselyn" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char6.jpg" alt="Roselyn" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#0a0d1a';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="knight" data-id="7" data-name="Veyl" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char7.jpg" alt="Veyl" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#2a1000';this.src=''"/>
+    </div>
+
+    <div class="char-card" data-class="scholar" data-id="8" data-name="Nox" onclick="selectChar(this)" style="padding:0;">
+      <div class="check-badge">✓</div>
+      <img src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char8.jpg" alt="Nox" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;" onerror="this.style.background='#1a1800';this.src=''"/>
+    </div>
+
+  </div><!-- /char-grid -->
+
+  <!-- Steps Panel -->
+  <div class="steps-panel">
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Connect Wallet</div>
+      <div class="step-desc">Connect your wallet to start your adventure.</div>
+      <button class="btn-wallet" id="walletBtn" onclick="window._openWallet ? window._openWallet() : alert('Wallet loading, please try again...')">
+        <span>&#9741;</span> CONNECT WALLET
+      </button>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Enter Name</div>
+      <div class="step-desc">Give your adventurer a unique name.</div>
+      <input class="name-input" id="nameInput" type="text" placeholder="Enter your name..." maxlength="10" oninput="updateName(this)"/>
+      <div class="char-count" id="charCount">0/10</div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Selected Character</div>
+      <div class="step-desc">This is your chosen adventurer.</div>
+      <div class="sel-char" id="selCharDisplay">
+        <img id="selCharImg" src="https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/char1.jpg" alt="Selected"/>
+        <span id="selCharName">Azure</span>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Ready to Begin</div>
+      <div class="step-desc">Confirm your info and enter the world!</div>
+      <button class="btn-start" id="startBtn" onclick="startGame()">
+        START GAME ✦
+      </button>
+    </div>
+
+  </div><!-- /steps-panel -->
+
+  <!-- How to Play -->
+  <div class="section-header" style="margin-top:32px;">
+    <div class="line"></div>
+    <span class="diamond">✦</span>
+    <h2>HOW TO PLAY</h2>
+    <span class="diamond">✦</span>
+    <div class="line"></div>
+  </div>
+
+  <div class="how-grid">
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-purple)">&#9741;</div>
+      <div class="how-title">Connect Wallet</div>
+      <div class="how-desc">Connect your wallet to enter the world of Slime Runes.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-green)">&#9670;</div>
+      <div class="how-title">Create Your Adventurer</div>
+      <div class="how-desc">Choose your hero and create your adventurer name.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-orange)">&#10022;</div>
+      <div class="how-title">Summon Slime Cards</div>
+      <div class="how-desc">Summon unique Slime Cards with different rarities, elements, and abilities.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--gold-light)">&#9788;</div>
+      <div class="how-title">Build Your Team</div>
+      <div class="how-desc">Select your strongest Slime Cards and prepare for adventure.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-blue)">&#9752;</div>
+      <div class="how-title">Choose a Map</div>
+      <div class="how-desc">Pick a region to explore and begin your journey.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-red)">&#10005;</div>
+      <div class="how-title">Battle Monsters</div>
+      <div class="how-desc">Defeat enemies and overcome challenges across the world.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--gold)">&#8962;</div>
+      <div class="how-title">Earn Rewards</div>
+      <div class="how-desc">Collect runes, treasures, and valuable resources.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-purple)">&#9672;</div>
+      <div class="how-title">Upgrade Your Cards</div>
+      <div class="how-desc">Strengthen your cards and unlock their full potential.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon" style="color:var(--accent-green)">&#9096;</div>
+      <div class="how-title">On-Chain Progress</div>
+      <div class="how-desc">Your achievements, assets, and progression are stored on-chain.</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-copy">© 2026 Slime Runes. All rights reserved.</div>
+    <div class="social-links">
+      <a class="social-btn docs-btn" href="#" title="Docs" onclick="openDocs(); return false;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6zm2-7h8v1H8v-1zm0 3h8v1H8v-1zm0-6h3v1H8v-1z"/></svg>
+      </a>
+      <a class="social-btn" href="https://x.com/slimerunesfun" target="_blank" title="X / Twitter">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a class="social-btn" href="https://t.me/slimerunesfun" target="_blank" title="Telegram">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      </a>
+    </div>
+    <div class="footer-right">Fantasy On-Chain Adventure</div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  const chars = {
+    '1': { name: 'Azure',   img: 'char1.jpg' },
+    '2': { name: 'Lunara',  img: 'char2.jpg' },
+    '3': { name: 'Kael',    img: 'char3.jpg' },
+    '4': { name: 'Sylva',   img: 'char4.jpg' },
+    '5': { name: 'Elior',   img: 'char5.jpg' },
+    '6': { name: 'Roselyn', img: 'char6.jpg' },
+    '7': { name: 'Veyl',    img: 'char7.jpg' },
+    '8': { name: 'Nox',     img: 'char8.jpg' },
+  };
+  const BASE = 'https://raw.githubusercontent.com/alcenime/Slime/main/assets/char/';
+
+  function selectChar(el) {
+    document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const id = el.dataset.id;
+    const ch = chars[id];
+    document.getElementById('selCharImg').src = BASE + ch.img;
+    document.getElementById('selCharName').textContent = ch.name;
+    checkReady();
+  }
+
+  function updateName(input) {
+    document.getElementById('charCount').textContent = input.value.length + '/10';
+    checkReady();
+  }
+
+  window.checkReady = function checkReady() {
+    const hasWallet = !!window._walletAddress;
+    const hasName = document.getElementById('nameInput').value.trim().length > 0;
+    const btn = document.getElementById('startBtn');
+    if (hasWallet && hasName) {
+      btn.classList.add('active');
+      btn.style.cursor = 'pointer';
+    } else {
+      btn.classList.remove('active');
+      btn.style.cursor = 'not-allowed';
+    }
+  }
+
+  function startGame() {
+    const btn = document.getElementById('startBtn');
+    if (!btn.classList.contains('active')) return;
+    document.getElementById('comingSoonModal').style.display = 'flex';
+  }
+
+  function closeComingSoon() {
+    document.getElementById('comingSoonModal').style.display = 'none';
+  }
+
+  // re-check when wallet connects
+  const _origSubscribe = window._appKit;
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window._appKit && window._appKit.subscribeAccount) {
+      window._appKit.subscribeAccount(() => checkReady());
+    }
+  });
+</script>
+
+<!-- ── COMING SOON MODAL ── -->
+<div id="comingSoonModal" style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px);">
+  <div style="max-width:340px; width:90%; background:linear-gradient(160deg,#0d1230,#0b0f2a); border:1px solid rgba(168,85,247,0.5); border-radius:16px; padding:36px 28px; text-align:center; box-shadow:0 0 60px rgba(124,58,237,0.3);">
+    <div style="font-size:2.8rem; margin-bottom:12px;">⚔️</div>
+    <div style="font-family:'Cinzel Decorative',serif; font-size:1.1rem; color:#f5d780; letter-spacing:0.08em; margin-bottom:8px;">COMING SOON</div>
+    <div style="font-family:'Cinzel',serif; font-size:0.65rem; color:rgba(212,168,67,0.6); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:16px;">The Adventure Awaits</div>
+    <p style="font-size:0.78rem; color:rgba(255,255,255,0.55); line-height:1.6; margin-bottom:24px;">The world of Slime Runes is being forged. Stay tuned for launch updates on our socials.</p>
+    <button onclick="closeComingSoon()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6); border:none; border-radius:8px; color:#fff; font-family:'Cinzel',serif; font-size:0.7rem; font-weight:700; letter-spacing:0.1em; padding:10px 28px; cursor:pointer; box-shadow:0 0 16px rgba(124,58,237,0.4); transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">GOT IT</button>
+  </div>
+</div>
+
+<!-- ── DOCS MODAL ── -->
+<div id="docsModal" style="display:none; position:fixed; inset:0; z-index:9999; align-items:flex-start; justify-content:center; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); overflow-y:auto; padding:20px 16px 40px;">
+  <div style="max-width:680px; width:100%; margin:0 auto; background:linear-gradient(160deg,#0d1230,#0b0f2a); border:1px solid rgba(212,168,67,0.35); border-radius:16px; overflow:hidden; box-shadow:0 0 60px rgba(0,0,0,0.7), 0 0 30px rgba(100,150,255,0.08);">
+
+    <!-- Modal Header -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; border-bottom:1px solid rgba(212,168,67,0.2); background:rgba(255,255,255,0.02);">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#d4a843"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6zm2-7h8v1H8v-1zm0 3h8v1H8v-1zm0-6h3v1H8v-1z"/></svg>
+        <span style="font-family:'Cinzel Decorative',serif; font-size:1rem; color:#f5d780; letter-spacing:0.08em;">SLIME RUNES</span>
+        <span style="font-family:'Cinzel',serif; font-size:0.7rem; color:rgba(212,168,67,0.6); letter-spacing:0.2em;">DOCS</span>
+      </div>
+      <button onclick="closeDocs()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:rgba(255,255,255,0.6); width:32px; height:32px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">✕</button>
+    </div>
+
+    <!-- Tabs -->
+    <div id="docsTabs" style="display:flex; gap:0; border-bottom:1px solid rgba(212,168,67,0.15); padding:0 24px;">
+      <button class="docs-tab active" onclick="switchTab('intro')" data-tab="intro">Introduction</button>
+      <button class="docs-tab" onclick="switchTab('gameplay')" data-tab="gameplay">Gameplay</button>
+      <button class="docs-tab" onclick="switchTab('tokenomics')" data-tab="tokenomics">Tokenomics</button>
+      <button class="docs-tab" onclick="switchTab('roadmap')" data-tab="roadmap">Roadmap</button>
+    </div>
+
+    <!-- Content -->
+    <div style="padding:28px 24px;">
+
+      <!-- INTRO -->
+      <div id="tab-intro" class="docs-content">
+        <div class="docs-section-label">✦ OVERVIEW</div>
+        <h2 class="docs-h2">What is Slime Runes?</h2>
+        <p class="docs-p">Slime Runes is a fantasy on-chain adventure game built on the Base network. Players choose a unique adventurer, explore a world of floating islands and ancient ruins, collect powerful runes, and battle monsters — all with progress permanently recorded on the blockchain.</p>
+        <p class="docs-p">Unlike traditional games, your items, progress, and achievements are truly yours. They live on-chain and can never be taken away.</p>
+
+        <div class="docs-divider"></div>
+        <div class="docs-section-label">✦ CORE CONCEPT</div>
+        <h2 class="docs-h2">Fantasy Meets Web3</h2>
+        <div class="docs-card-grid">
+          <div class="docs-card">
+            <div class="docs-card-icon" style="color:#4cde7a">⬡</div>
+            <div class="docs-card-title">On-Chain Assets</div>
+            <div class="docs-card-desc">All runes, items, and character data are stored on-chain via the Base network — permanent and player-owned.</div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-icon" style="color:#a855f7">✦</div>
+            <div class="docs-card-title">8 Unique Classes</div>
+            <div class="docs-card-desc">Choose from Ranger, Pirate, Mage, Explorer, Priestess, Assassin, Knight, or Scholar — each with distinct abilities.</div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-icon" style="color:#38bdf8">◈</div>
+            <div class="docs-card-title">Play to Earn</div>
+            <div class="docs-card-desc">Earn $RUNE tokens by completing dungeons, slaying monsters, and trading rare runes in the marketplace.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAMEPLAY -->
+      <div id="tab-gameplay" class="docs-content" style="display:none">
+        <div class="docs-section-label">✦ HOW IT WORKS</div>
+        <h2 class="docs-h2">Gameplay Loop</h2>
+        <p class="docs-p">Slime Runes revolves around a simple but deep loop: explore, fight, collect, upgrade. Every action has on-chain consequences, making every decision meaningful.</p>
+
+        <div class="docs-steps">
+          <div class="docs-step-item">
+            <div class="docs-step-num">01</div>
+            <div>
+              <div class="docs-step-title">Connect Wallet</div>
+              <div class="docs-step-desc">Connect your wallet to enter the world of Slime Runes.</div>
+            </div>
+          </div>
+          <div class="docs-step-item">
+            <div class="docs-step-num">02</div>
+            <div>
+              <div class="docs-step-title">Create Your Adventurer</div>
+              <div class="docs-step-desc">Choose your hero and create your adventurer name.</div>
+            </div>
+          </div>
+          <div class="docs-step-item">
+            <div class="docs-step-num">03</div>
+            <div>
+              <div class="docs-step-title">Summon Slime Cards</div>
+              <div class="docs-step-desc">Summon unique Slime Cards with different rarities, elements, and abilities.</div>
+            </div>
+          </div>
+          <div class="docs-step-item">
+            <div class="docs-step-num">04</div>
+            <div>
+              <div class="docs-step-title">Build Your Team</div>
+              <div class="docs-step-desc">Select your strongest Slime Cards and prepare for adventure.</div>
+            </div>
+          </div>
+          <div class="docs-step-item">
+            <div class="docs-step-num">05</div>
+            <div>
+              <div class="docs-step-title">Choose a Map</div>
+              <div class="docs-step-desc">Pick a region to explore and begin your journey.</div>
+            </div>
+          </div>
+          <div class="docs-step-item">
+            <div class="docs-step-num">06</div>
+            <div>
+              <div class="docs-step-title">Battle Monsters</div>
+              <div class="docs-step-desc">Defeat enemies and overcome challenges across the world.</div>
+            </div>
+          </div>
+          <div class="docs-step-item">
+            <div class="docs-step-num">07</div>
+            <div>
+              <div class="docs-step-title">Earn Rewards</div>
+              <div class="docs-step-desc">Collect runes, treasures, and valuable resources.</div>
+            </div>
+          </div>
+          <div class="docs-step-item">
+            <div class="docs-step-num">08</div>
+            <div>
+              <div class="docs-step-title">Upgrade Your Cards</div>
+              <div class="docs-step-desc">Strengthen your cards and unlock their full potential.</div>
+            </div>
+          </div>
+          <div class="docs-step-item">
+            <div class="docs-step-num">09</div>
+            <div>
+              <div class="docs-step-title">On-Chain Progress</div>
+              <div class="docs-step-desc">Your achievements, assets, and progression are stored on-chain.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="docs-divider"></div>
+        <div class="docs-section-label">✦ RUNE TIERS</div>
+        <h2 class="docs-h2">Rarity System</h2>
+        <div class="docs-rarity-grid">
+          <div class="docs-rarity" style="border-color:rgba(160,160,160,0.4)"><span style="color:#aaa">●</span> Common</div>
+          <div class="docs-rarity" style="border-color:rgba(56,189,248,0.5)"><span style="color:#38bdf8">●</span> Rare</div>
+          <div class="docs-rarity" style="border-color:rgba(168,85,247,0.5)"><span style="color:#a855f7">●</span> Epic</div>
+          <div class="docs-rarity" style="border-color:rgba(212,168,67,0.6)"><span style="color:#d4a843">●</span> Legendary</div>
+        </div>
+      </div>
+
+      <!-- TOKENOMICS -->
+      <div id="tab-tokenomics" class="docs-content" style="display:none">
+        <div class="docs-section-label">✦ TOKEN</div>
+        <h2 class="docs-h2">$RUNE Token</h2>
+        <p class="docs-p">$RUNE is the native utility token of Slime Runes, deployed on the Base network. It powers all in-game economies, governance votes, and reward distributions.</p>
+
+        <div class="docs-divider"></div>
+        <div class="docs-section-label">✦ ALLOCATION</div>
+        <h2 class="docs-h2">Token Distribution</h2>
+        <div class="docs-alloc-list">
+          <div class="docs-alloc-item">
+            <div style="display:flex;align-items:center;gap:10px;"><div style="width:12px;height:12px;border-radius:3px;background:#4cde7a;flex-shrink:0"></div><span class="docs-alloc-label">Play to Earn Rewards</span></div>
+            <div class="docs-alloc-val" style="color:#4cde7a">40%</div>
+          </div>
+          <div class="docs-alloc-bar" style="--pct:40%; --col:#4cde7a"></div>
+          <div class="docs-alloc-item">
+            <div style="display:flex;align-items:center;gap:10px;"><div style="width:12px;height:12px;border-radius:3px;background:#38bdf8;flex-shrink:0"></div><span class="docs-alloc-label">Liquidity & Exchange</span></div>
+            <div class="docs-alloc-val" style="color:#38bdf8">20%</div>
+          </div>
+          <div class="docs-alloc-bar" style="--pct:20%; --col:#38bdf8"></div>
+          <div class="docs-alloc-item">
+            <div style="display:flex;align-items:center;gap:10px;"><div style="width:12px;height:12px;border-radius:3px;background:#a855f7;flex-shrink:0"></div><span class="docs-alloc-label">Team & Development</span></div>
+            <div class="docs-alloc-val" style="color:#a855f7">15%</div>
+          </div>
+          <div class="docs-alloc-bar" style="--pct:15%; --col:#a855f7"></div>
+          <div class="docs-alloc-item">
+            <div style="display:flex;align-items:center;gap:10px;"><div style="width:12px;height:12px;border-radius:3px;background:#fb923c;flex-shrink:0"></div><span class="docs-alloc-label">Ecosystem Fund</span></div>
+            <div class="docs-alloc-val" style="color:#fb923c">15%</div>
+          </div>
+          <div class="docs-alloc-bar" style="--pct:15%; --col:#fb923c"></div>
+          <div class="docs-alloc-item">
+            <div style="display:flex;align-items:center;gap:10px;"><div style="width:12px;height:12px;border-radius:3px;background:#d4a843;flex-shrink:0"></div><span class="docs-alloc-label">Community & Airdrop</span></div>
+            <div class="docs-alloc-val" style="color:#d4a843">10%</div>
+          </div>
+          <div class="docs-alloc-bar" style="--pct:10%; --col:#d4a843"></div>
+        </div>
+
+        <div class="docs-divider"></div>
+        <div class="docs-section-label">✦ UTILITY</div>
+        <h2 class="docs-h2">Token Uses</h2>
+        <div class="docs-card-grid">
+          <div class="docs-card">
+            <div class="docs-card-icon" style="color:#4cde7a">⚔</div>
+            <div class="docs-card-title">Battle Entry</div>
+            <div class="docs-card-desc">Spend $RUNE to enter high-stakes PvP arenas and elite dungeons with bigger reward pools.</div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-icon" style="color:#38bdf8">⬆</div>
+            <div class="docs-card-title">Upgrades</div>
+            <div class="docs-card-desc">Upgrade your character stats, unlock new skills, and enhance rune slots using $RUNE.</div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-icon" style="color:#d4a843">🗳</div>
+            <div class="docs-card-title">Governance</div>
+            <div class="docs-card-desc">Hold $RUNE to vote on game updates, new content releases, and ecosystem proposals.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROADMAP -->
+      <div id="tab-roadmap" class="docs-content" style="display:none">
+        <div class="docs-section-label">✦ TIMELINE</div>
+        <h2 class="docs-h2">Development Roadmap</h2>
+        <p class="docs-p">Slime Runes is built in phases, with each milestone expanding the world and rewarding early adventurers.</p>
+
+        <div class="docs-timeline">
+          <div class="docs-tl-item done">
+            <div class="docs-tl-dot"></div>
+            <div class="docs-tl-content">
+              <div class="docs-tl-phase">Phase 1 <span class="docs-tl-badge done-badge">✓ Complete</span></div>
+              <div class="docs-tl-title">Genesis Launch</div>
+              <ul class="docs-tl-list">
+                <li>Character creation system</li>
+                <li>On-chain wallet integration (Base)</li>
+                <li>8 adventurer classes revealed</li>
+                <li>$RUNE token deployment</li>
+                <li>Community launch on X & Telegram</li>
+              </ul>
+            </div>
+          </div>
+          <div class="docs-tl-item active">
+            <div class="docs-tl-dot"></div>
+            <div class="docs-tl-content">
+              <div class="docs-tl-phase">Phase 2 <span class="docs-tl-badge active-badge">⚡ In Progress</span></div>
+              <div class="docs-tl-title">Dungeon World</div>
+              <ul class="docs-tl-list">
+                <li>First 3 dungeon biomes: Forest, Ruins, Sky Island</li>
+                <li>Rune drop system & rarity tiers</li>
+                <li>Combat engine (turn-based)</li>
+                <li>Basic item crafting</li>
+                <li>$RUNE staking rewards</li>
+              </ul>
+            </div>
+          </div>
+          <div class="docs-tl-item">
+            <div class="docs-tl-dot"></div>
+            <div class="docs-tl-content">
+              <div class="docs-tl-phase">Phase 3 <span class="docs-tl-badge">⏳ Upcoming</span></div>
+              <div class="docs-tl-title">PvP Arena</div>
+              <ul class="docs-tl-list">
+                <li>Player vs Player arena battles</li>
+                <li>Leaderboard & seasonal rankings</li>
+                <li>Marketplace for rune trading</li>
+                <li>Guild system</li>
+              </ul>
+            </div>
+          </div>
+          <div class="docs-tl-item">
+            <div class="docs-tl-dot"></div>
+            <div class="docs-tl-content">
+              <div class="docs-tl-phase">Phase 4 <span class="docs-tl-badge">⏳ Upcoming</span></div>
+              <div class="docs-tl-title">Expanded World</div>
+              <ul class="docs-tl-list">
+                <li>New biomes: Volcanic Caverns & Deep Ocean</li>
+                <li>Legendary rune set completions</li>
+                <li>Mobile app (Android & iOS)</li>
+                <li>Governance voting live</li>
+                <li>Cross-chain bridging</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div>
+</div>
+
+<style>
+.docs-tab {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,0.4); font-family: 'Cinzel', serif;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+  padding: 12px 14px 10px; cursor: pointer; text-transform: uppercase;
+  transition: all 0.2s; white-space: nowrap;
+}
+.docs-tab:hover { color: rgba(212,168,67,0.7); }
+.docs-tab.active { color: #d4a843; border-bottom-color: #d4a843; }
+.docs-section-label { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.25em; color:rgba(212,168,67,0.5); text-transform:uppercase; margin-bottom:8px; }
+.docs-h2 { font-family:'Cinzel',serif; font-size:1.05rem; color:#f5d780; margin-bottom:14px; font-weight:700; }
+.docs-p { font-size:0.82rem; color:rgba(255,255,255,0.65); line-height:1.7; margin-bottom:12px; }
+.docs-divider { height:1px; background:linear-gradient(to right,transparent,rgba(212,168,67,0.25),transparent); margin:24px 0; }
+.docs-card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+@media(max-width:520px){ .docs-card-grid { grid-template-columns:1fr; } }
+.docs-card { background:rgba(255,255,255,0.03); border:1px solid rgba(212,168,67,0.15); border-radius:10px; padding:14px 12px; display:flex; flex-direction:column; gap:6px; }
+.docs-card-icon { font-size:1.4rem; }
+.docs-card-title { font-family:'Cinzel',serif; font-size:0.68rem; color:#f5d780; font-weight:700; letter-spacing:0.05em; }
+.docs-card-desc { font-size:0.72rem; color:rgba(255,255,255,0.5); line-height:1.5; }
+.docs-steps { display:flex; flex-direction:column; gap:0; }
+.docs-step-item { display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.docs-step-item:last-child { border-bottom:none; }
+.docs-step-num { font-family:'Cinzel',serif; font-size:0.65rem; color:rgba(212,168,67,0.5); font-weight:700; min-width:28px; padding-top:2px; }
+.docs-step-title { font-family:'Cinzel',serif; font-size:0.75rem; color:#f5d780; font-weight:700; margin-bottom:4px; }
+.docs-step-desc { font-size:0.72rem; color:rgba(255,255,255,0.5); line-height:1.55; }
+.docs-rarity-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+@media(max-width:420px){ .docs-rarity-grid { grid-template-columns:repeat(2,1fr); } }
+.docs-rarity { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; text-align:center; font-family:'Cinzel',serif; font-size:0.7rem; color:rgba(255,255,255,0.7); display:flex; flex-direction:column; align-items:center; gap:5px; }
+.docs-alloc-list { display:flex; flex-direction:column; gap:10px; }
+.docs-alloc-item { display:flex; justify-content:space-between; align-items:center; }
+.docs-alloc-label { font-size:0.78rem; color:rgba(255,255,255,0.65); }
+.docs-alloc-val { font-family:'Cinzel',serif; font-size:0.8rem; font-weight:700; }
+.docs-alloc-bar { height:4px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+.docs-alloc-bar::after { content:''; display:block; height:100%; width:var(--pct); background:var(--col); border-radius:4px; }
+.docs-timeline { display:flex; flex-direction:column; gap:0; position:relative; padding-left:20px; }
+.docs-timeline::before { content:''; position:absolute; left:6px; top:8px; bottom:8px; width:1px; background:rgba(212,168,67,0.2); }
+.docs-tl-item { position:relative; padding:0 0 24px 24px; }
+.docs-tl-item:last-child { padding-bottom:0; }
+.docs-tl-dot { position:absolute; left:-14px; top:6px; width:13px; height:13px; border-radius:50%; border:2px solid rgba(212,168,67,0.3); background:var(--navy); }
+.docs-tl-item.done .docs-tl-dot { background:#4cde7a; border-color:#4cde7a; box-shadow:0 0 8px rgba(76,222,122,0.5); }
+.docs-tl-item.active .docs-tl-dot { background:#38bdf8; border-color:#38bdf8; box-shadow:0 0 8px rgba(56,189,248,0.5); }
+.docs-tl-phase { font-family:'Cinzel',serif; font-size:0.62rem; color:rgba(212,168,67,0.5); letter-spacing:0.15em; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+.docs-tl-title { font-family:'Cinzel',serif; font-size:0.85rem; color:#f5d780; font-weight:700; margin-bottom:8px; }
+.docs-tl-list { list-style:none; padding:0; display:flex; flex-direction:column; gap:4px; }
+.docs-tl-list li { font-size:0.73rem; color:rgba(255,255,255,0.5); line-height:1.5; padding-left:12px; position:relative; }
+.docs-tl-list li::before { content:'–'; position:absolute; left:0; color:rgba(212,168,67,0.4); }
+.docs-tl-badge { font-family:'Lato',sans-serif; font-size:0.6rem; padding:2px 7px; border-radius:20px; font-weight:700; letter-spacing:0.05em; }
+.done-badge { background:rgba(76,222,122,0.15); color:#4cde7a; border:1px solid rgba(76,222,122,0.3); }
+.active-badge { background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); }
+.docs-tl-badge:not(.done-badge):not(.active-badge) { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.4); border:1px solid rgba(255,255,255,0.1); }
+</style>
+
+<script>
+function openDocs() {
+  const m = document.getElementById('docsModal');
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeDocs() {
+  const m = document.getElementById('docsModal');
+  m.style.display = 'none';
+  document.body.style.overflow = '';
+}
+function switchTab(tab) {
+  document.querySelectorAll('.docs-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.docs-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).style.display = 'block';
+  document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+}
+// Close on backdrop click
+document.getElementById('docsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDocs();
+});
+</script>
+
+</body>
+</html>
